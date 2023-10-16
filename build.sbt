@@ -9,6 +9,8 @@ scalacOptions += "@.scalacOptions.txt"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16" % Test
 libraryDependencies += "org.apache.commons" % "commons-collections4" % "4.4"
 
+//mainClass in (Compile, run) := Some("imperative.modular.topWordsMain")
+
 logBuffered := false
 
 Test / parallelExecution := false
