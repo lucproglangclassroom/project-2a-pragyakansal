@@ -7,6 +7,9 @@ import scala.annotation.targetName
 import scala.io.Source
 
 trait topWords extends Task {
+  self: Observer =>
+    // Result type is type of topWords
+  override type Result = List[(String, Int)]
   private def processLines(howMany: Int, minLength: Int, lastNWords: Int, k_steps: Int, minFrequency: Int, lines: Iterator[String | Null]): Unit = {
     val slidingQueue = mutable.Queue[String]()
     var stepCounter = 0
@@ -29,8 +32,7 @@ trait topWords extends Task {
           if (stepCounter % k_steps == 0) {
             val wordFreq = slidingQueue.groupBy(identity).view.mapValues(_.size)
             val topWords = wordFreq.toList.sortBy { case (_, freq) => -freq }.take(howMany)
-            val stats = topWords.map { case (word, freq) => s"$word: $freq" }.mkString(" ")
-            println(stats)
+            update(topWords)
           }
           stepCounter += 1
         }
@@ -51,9 +53,13 @@ trait topWords extends Task {
 }
 
 object topWordsMain extends Main with topWords {
+  override def update(result: Result) = 
+    val stats = result.map { case (word, freq) => s"$word: $freq" }.mkString(" ")
+    outputToPrintStream(scala.sys.process.stdout)(stats)
+
   override def main(args: Array[String]): Unit = {
-    if (args.length < 3) {
-      println("Usage: sbt 'runMain imperative.modular.topWordsMain howMany minLength lastNWords [inputFileName]'")
+    if (args.length < 5) {
+      println("Usage: sbt 'runMain imperative.modular.topWordsMain howMany minLength lastNWords k_steps minFrequency [inputFileName]'")
     } else {
       val howMany = Try(args(0).toInt).getOrElse(10)
       val minLength = Try(args(1).toInt).getOrElse(6)

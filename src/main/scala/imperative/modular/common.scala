@@ -10,7 +10,7 @@ end Observer
 
 /** Prints its second argument to a given stream. */
 def outputToPrintStream[Result](out: PrintStream)(result: Result): Unit =
-  out.print(result)
+  out.println(result)
   // terminate on I/O error such as SIGPIPE
   if out.checkError() then
     sys.exit(1)
